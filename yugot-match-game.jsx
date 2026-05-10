@@ -435,6 +435,174 @@ const STYLES = `
 }
 .splash-cta { position: relative; z-index: 100; }
 
+/* Mode buttons stacked with consistent width and vertical spacing */
+.splash-modes {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: center;
+  width: 100%;
+  max-width: 320px;
+  z-index: 100;
+}
+.splash-modes .splash-cta {
+  width: 100%;
+  min-width: 0;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+/* Two short pill buttons below the mode column */
+.splash-icon-row {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  z-index: 100;
+  margin-top: 4px;
+  width: 100%;
+  max-width: 320px;
+}
+.icon-btn {
+  flex: 1;
+  height: 56px;
+  background: ${BRAND.green};
+  border: none;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  color: ${BRAND.white};
+  cursor: pointer;
+  font-family: 'Mikado', sans-serif;
+  font-weight: 900;
+  font-size: 16px;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  box-shadow:
+    0 6px 0 ${BRAND.greenDark},
+    0 10px 18px rgba(0,0,0,0.22);
+  transition: transform 80ms ease, box-shadow 80ms ease;
+  padding: 0 16px;
+}
+.icon-btn:active {
+  transform: translateY(4px);
+  box-shadow: 0 2px 0 ${BRAND.greenDark}, 0 4px 8px rgba(0,0,0,0.18);
+}
+.icon-btn-img {
+  height: 38px;
+  width: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 0 rgba(0,0,0,0.22));
+  display: block;
+}
+
+/* Modal — How To Play */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  display: grid;
+  place-items: center;
+  z-index: 9999;
+  padding: 20px;
+  animation: backdropIn 180ms ease-out;
+}
+@keyframes backdropIn { from { opacity: 0; } to { opacity: 1; } }
+
+.modal-card {
+  position: relative;
+  background: ${BRAND.white};
+  color: ${BRAND.ink};
+  border-radius: 24px;
+  padding: 28px 24px 24px;
+  max-width: 420px;
+  width: 100%;
+  max-height: 85dvh;
+  overflow-y: auto;
+  box-shadow:
+    0 12px 0 rgba(0,0,0,0.18),
+    0 18px 38px rgba(0,0,0,0.32);
+  animation: modalIn 280ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  font-family: 'Mikado', sans-serif;
+}
+@keyframes modalIn {
+  from { transform: scale(0.85) translateY(20px); opacity: 0; }
+  to   { transform: scale(1) translateY(0); opacity: 1; }
+}
+
+.modal-close {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  width: 36px;
+  height: 36px;
+  background: ${BRAND.ink};
+  color: ${BRAND.white};
+  border: none;
+  border-radius: 50%;
+  font-size: 24px;
+  font-weight: 900;
+  line-height: 1;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  padding: 0 0 2px;
+}
+.modal-close:active { transform: scale(0.92); }
+
+.modal-title {
+  font-weight: 900;
+  font-size: 32px;
+  letter-spacing: -0.03em;
+  margin: 0 0 16px;
+  text-align: center;
+  color: ${BRAND.ink};
+}
+
+.rules-mode {
+  background: #FFF5DA;
+  border: 3px solid ${BRAND.ink};
+  border-radius: 16px;
+  padding: 14px 16px;
+  margin-bottom: 12px;
+  box-shadow: 0 4px 0 ${BRAND.ink};
+}
+.rules-mode:last-child { margin-bottom: 0; }
+.rules-mode-name {
+  font-weight: 900;
+  font-size: 20px;
+  letter-spacing: -0.02em;
+  color: ${BRAND.greenDarker};
+  margin-bottom: 6px;
+}
+.rules-mode p {
+  font-weight: 500;
+  font-size: 15px;
+  line-height: 1.45;
+  margin: 0 0 6px;
+  color: ${BRAND.ink};
+}
+.rules-mode p:last-child { margin-bottom: 0; }
+.rules-list {
+  margin: 6px 0 0;
+  padding-left: 18px;
+}
+.rules-list li {
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 1.45;
+  margin-bottom: 4px;
+  color: ${BRAND.ink};
+}
+.rules-list li b {
+  font-weight: 900;
+  color: ${BRAND.greenDarker};
+}
+.rules-note {
+  font-size: 13px !important;
+  opacity: 0.7;
+  font-style: italic;
+}
+
 /* Pile of square avatar chips at the bottom third */
 .preview-pile {
   position: relative;
@@ -1297,19 +1465,39 @@ function Splash({ onStartClassic, onStartSpeed, onStartPickle, onStartBoss, onLe
     return result;
   }, []);
 
+  const [rulesOpen, setRulesOpen] = useState(false);
+
   return (
     <div className="splash">
       <img className="splash-mash-banner" src={LOGO_MASH_IMG} alt="Memory Mash" draggable="false" />
       <p className="splash-blurb">
         Flip two cards. Find the pair. Clear the board in as few moves as you can.
       </p>
-      <button className="pill-btn splash-cta" onClick={onStartClassic}>Classic</button>
-      <button className="pill-btn splash-cta" onClick={onStartSpeed}>Speed Mash</button>
-      <button className="pill-btn splash-cta" onClick={onStartPickle}>Pickle Pepper</button>
-      {/* Boss Mode hidden from splash while we iterate. Re-enable by uncommenting:
-      <button className="pill-btn splash-cta" onClick={onStartBoss}>Boss Mode</button>
-      */}
-      <button className="pill-btn ghost splash-cta" onClick={onLeaderboard} style={{minWidth: 290}}>Leaderboard</button>
+      <div className="splash-modes">
+        <button className="pill-btn splash-cta" onClick={onStartClassic}>Classic</button>
+        <button className="pill-btn splash-cta" onClick={onStartSpeed}>Speed Mash</button>
+        <button className="pill-btn splash-cta" onClick={onStartPickle}>Pickle Pepper</button>
+        {/* Boss Mode hidden while we iterate. Re-enable by uncommenting:
+        <button className="pill-btn splash-cta" onClick={onStartBoss}>Boss Mode</button>
+        */}
+      </div>
+      <div className="splash-icon-row">
+        <button
+          className="icon-btn"
+          onClick={() => setRulesOpen(true)}
+          aria-label="How to play"
+        >
+          How to Play
+        </button>
+        <button
+          className="icon-btn"
+          onClick={onLeaderboard}
+          aria-label="Leaderboard"
+        >
+          <img src={TROPHY_IMG} alt="" className="icon-btn-img" />
+        </button>
+      </div>
+      {rulesOpen && <RulesModal onClose={() => setRulesOpen(false)} />}
       <div className="preview-pile" aria-hidden="true">
         {chips.map((c, k) => {
           const tint = TINTS[c.avatarIdx % TINTS.length];
@@ -1710,6 +1898,44 @@ function Leaderboard({ classicEntries, speedEntries, pickleEntries, bossEntries,
 }
 
 // ─── Main ─────────────────────────────────────────────────────────────────
+
+function RulesModal({ onClose }) {
+  // Close on Escape
+  useEffect(() => {
+    const onKey = (e) => { if (e.key === 'Escape') onClose(); };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [onClose]);
+
+  return (
+    <div className="modal-backdrop" onClick={onClose}>
+      <div className="modal-card" onClick={(e) => e.stopPropagation()}>
+        <button className="modal-close" onClick={onClose} aria-label="Close">×</button>
+        <h2 className="modal-title">How To Play</h2>
+
+        <div className="rules-mode">
+          <div className="rules-mode-name">Classic</div>
+          <p>Flip cards two at a time to find matching pairs. Clear the whole board in as few moves and as little time as possible. Lower score is better.</p>
+        </div>
+
+        <div className="rules-mode">
+          <div className="rules-mode-name">Speed Mash</div>
+          <p>All cards flash face-up for 2.5 seconds — memorize what you can! Then race the 20-second clock to find all 8 pairs. More matches = higher score. Finish early for a time bonus.</p>
+        </div>
+
+        <div className="rules-mode">
+          <div className="rules-mode-name">Pickle Pepper</div>
+          <p>Find 6 pairs among 16 cards. Two pickles and two peppers are hidden in the deck.</p>
+          <ul className="rules-list">
+            <li><b>Flip a pickle:</b> a random unmatched pair is briefly revealed — free intel!</li>
+            <li><b>Flip a pepper:</b> one of your matched pairs flips back down — you'll have to find it again.</li>
+          </ul>
+          <p className="rules-note">Lower score wins. Each pepper costs you 30 points.</p>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function YugotMatchGame() {
   const [screen, setScreen] = useState('splash'); // 'splash' | 'name' | 'game' | 'leaderboard'
